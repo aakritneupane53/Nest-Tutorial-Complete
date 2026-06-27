@@ -11,7 +11,6 @@ import {
   Delete,
 } from '@nestjs/common';
 import { PostService } from './post.service';
-import { Post as PostInterface } from './interface/post.interface';
 import { CreatePostDto } from './dto/createPost.dto';
 import { PostExistsPipe } from './pipes/post-exists.pipe';
 
