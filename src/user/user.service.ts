@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './enitiy/user.entity';
 import { RegisterUserDto } from 'src/auth/dto/register-user.dto';
+import { Role } from './enitiy/user.entity';
 import argon2 from 'argon2';
 
 @Injectable()
@@ -23,6 +24,14 @@ export class UserService {
   async findUserByEmail(email: string) {
     const user = await this.userRepository.findOneBy({ email });
     return user;
+  }
+  async findAdminByEmail(email: string) {
+    return await this.userRepository.findOne({
+      where: {
+        email,
+        role: Role.Admin,
+      },
+    });
   }
 
   async createUser(registerDto: RegisterUserDto) {
@@ -42,6 +51,31 @@ export class UserService {
       throw new InternalServerErrorException(
         'Failed to write new user to the db',
       );
-    return newUser;
+    const { password, ...newUserData } = newUser;
+
+    return newUserData;
+  }
+  async createAdmin(registerDto: RegisterUserDto) {
+    const existingAdmin = await this.findAdminByEmail(registerDto.email);
+    if (existingAdmin)
+      throw new ConflictException('The admin with this email already exists');
+    const hashedPassword = await this.hashPassword(registerDto.password);
+    if (!hashedPassword)
+      throw new InternalServerErrorException('Hashing failed');
+
+    const newAdmin = await this.userRepository.save({
+      ...registerDto,
+      password: hashedPassword,
+      role: Role.Admin,
+    });
+
+    if (!newAdmin)
+      throw new InternalServerErrorException(
+        'Failed to write new user to the db',
+      );
+
+    const { password, ...newAdminData } = newAdmin;
+    console.timeLog(newAdmin.role);
+    return newAdminData;
   }
 }
