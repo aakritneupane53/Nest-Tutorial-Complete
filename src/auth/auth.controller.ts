@@ -9,4 +9,8 @@ export class AuthController {
   async register(@Body() registerDto: RegisterUserDto) {
     return await this.authService.register(registerDto);
   }
+  @Post('create-admin')
+  async createAdmin(@Body() registerDto: RegisterUserDto) {
+    return await this.authService.createAdmin(registerDto);
+  }
 }

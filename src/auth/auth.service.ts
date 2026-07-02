@@ -8,4 +8,7 @@ export class AuthService {
   async register(registerUserDto: RegisterUserDto) {
     return this.userService.createUser(registerUserDto);
   }
+  async createAdmin(registerUserDto: RegisterUserDto) {
+    return this.userService.createAdmin(registerUserDto);
+  }
 }
